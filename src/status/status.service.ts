@@ -40,7 +40,6 @@ export class StatusService {
                 id,
             },
         });
-     
         if(StatusExists) {
             throw new Error('Status does not exists!');
         }

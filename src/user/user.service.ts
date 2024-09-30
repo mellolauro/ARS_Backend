@@ -1,55 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/PrismaService';
+import { User } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
-    async create(data: CreateUserDto) {
-      const user = await this.prisma.user.create({
-            data
-        });
-        return user;
+    async create(createUserDto: CreateUserDto): Promise<User> {
+    return this.prisma.user.create({
+        data: createUserDto,
+    });
     }
 
-    async findAll() {
-        return this.prisma.user.findMany();
+    async findUserEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+        where: { email },
+    });
     }
 
-    async update(id: number, data:CreateUserDto) {
-        const UserExists = await this.prisma.user.findUnique({
-            where: {
-                id,
-            },
-        });
-        if (!UserExists) {
-            throw new Error('User does not exists!');
-        }
-
-        return await this.prisma.user.update({
-            data,
-            where: {
-                id,
-            },
-        });
+    async findAll(): Promise<User[]> {
+    return this.prisma.user.findMany();
     }
 
-    async delete(id: number) {
-        const UserExists = await this.prisma.user.findUnique({
-            where: {
-                id,
-            },
-        });
 
-        if (!UserExists) {
-            throw new Error('User does not exists!');
-        }
+    async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    return this.prisma.user.update({
+        where: { id },
+        data: updateUserDto, 
+    });
+    }
 
-        return await this.prisma.user.delete({
-            where: {
-                id,
-            },
-        });
+    async delete(id: number): Promise<void> {
+    await this.prisma.user.delete({
+        where: { id },
+    });
     }
 }
