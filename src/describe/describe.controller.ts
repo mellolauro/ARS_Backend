@@ -1,10 +1,12 @@
 import { Body, Controller, Delete, Param, Post, Put, Get, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { DescribeService } from './describe.service';
 import { CreateDescribeDTO } from './dto/Create-describe.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/shared/jwt-auth.guard';
 
 @ApiBearerAuth()
+@ApiTags('Descrição')
 @Controller('describe')
 export class DescribeController {
   constructor(private readonly describeService: DescribeService) {}
