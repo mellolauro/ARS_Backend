@@ -1,40 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/database/PrismaService';
-import { User } from '@prisma/client';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import bccrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly prisma: PrismaService) {}
+constructor(private prisma: PrismaService) {}
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
-    return this.prisma.user.create({
-        data: createUserDto,
+async create(dto: CreateUserDto) {
+    const user = await this.prisma.user.findUnique({
+    where: {
+        email: dto.email,
+    },
     });
-    }
+    if (user) throw new ConflictException('email duplicated');
 
-    async findUserEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-        where: { email },
+    const newUser = await this.prisma.user.create({
+    data: {
+        ...dto,
+        password: await bccrypt.hash(dto.password, 10),
+    },
     });
-    }
+    const { password, ...result } = newUser;
+    return result;
+}
 
-    async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany();
-    }
-
-
-    async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    return this.prisma.user.update({
-        where: { id },
-        data: updateUserDto, 
+async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+    where: {
+        email: email,
+    },
     });
-    }
-
-    async delete(id: number): Promise<void> {
-    await this.prisma.user.delete({
-        where: { id },
+}
+async findById(id: number) {
+    return await this.prisma.user.findUnique({
+    where: {
+        id: id,
+    },
     });
-    }
+}
 }

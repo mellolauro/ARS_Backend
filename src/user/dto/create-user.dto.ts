@@ -1,17 +1,16 @@
-import { IsString } from "class-validator";
-import { BaseUserDto } from "./base-user.dto";
-import { ApiProperty } from "@nestjs/swagger";
+import { BaseUserDto } from './base-user.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto extends BaseUserDto {
-    @ApiProperty()
-    name: string;
-    
-    @ApiProperty()
-    email: string;
+  @ApiProperty()
+  name: string;
 
-    @ApiProperty()
-    department: string;
+  @ApiProperty()
+  email: string;
 
-    @ApiProperty()
-    password?: string;
+  @ApiProperty()
+  department: string;
+
+  @ApiProperty()
+  password?: string;
 }

@@ -1,9 +1,18 @@
-import { Body, Controller, Delete, Param, Post, Put, Get, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Put,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DescribeService } from './describe.service';
 import { CreateDescribeDTO } from './dto/Create-describe.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/shared/jwt-auth.guard';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @ApiBearerAuth()
 @ApiTags('Descrição')
@@ -11,27 +20,27 @@ import { JwtAuthGuard } from 'src/auth/shared/jwt-auth.guard';
 export class DescribeController {
   constructor(private readonly describeService: DescribeService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Post()
-  async create(@Body() data: CreateDescribeDTO){
+  async create(@Body() data: CreateDescribeDTO) {
     return this.describeService.create(data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Get()
-  async findAll(){
+  async findAll() {
     return this.describeService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Put(':id')
-  async update(@Param('id') id:number, @Body() data:CreateDescribeDTO) {
+  async update(@Param('id') id: number, @Body() data: CreateDescribeDTO) {
     return this.describeService.update(id, data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Delete(':id')
-  async delete(@Param('id') id:number) {
+  async delete(@Param('id') id: number) {
     return this.describeService.delete(id);
   }
 }

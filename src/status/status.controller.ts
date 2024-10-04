@@ -1,9 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post,Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { StatusService } from './status.service';
 import { CreateStatusDTO } from './dto/CreateStatus.dto';
-import { JwtAuthGuard } from 'src/auth/shared/jwt-auth.guard';
-
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @ApiBearerAuth()
 @ApiTags('Status')
@@ -11,27 +19,27 @@ import { JwtAuthGuard } from 'src/auth/shared/jwt-auth.guard';
 export class StatusController {
   constructor(private readonly statusService: StatusService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Post()
-  async create(@Body() data:CreateStatusDTO) {
+  async create(@Body() data: CreateStatusDTO) {
     return this.statusService.create(data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Get()
   async findAll() {
     return this.statusService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Put(':id')
-  async update(@Param('id') id:number, @Body() data:CreateStatusDTO){
+  async update(@Param('id') id: number, @Body() data: CreateStatusDTO) {
     return this.statusService.update(id, data);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @Delete(':id')
-  async delete(@Param('id') id:number) {
+  async delete(@Param('id') id: number) {
     return this.statusService.delete(id);
   }
 }
