@@ -1,16 +1,15 @@
-import { BaseUserDto } from './base-user.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
-export class UpdateUserDto extends BaseUserDto {
-  @ApiProperty()
-  name: string;
+export class UpdateUserDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
 
-  @ApiProperty()
-  email: string;
+  @IsEmail()
+  @IsOptional()
+  email?: string;
 
-  @ApiProperty()
-  department: string;
-
-  @ApiProperty()
-  password?: string;
+  @IsOptional()
+  @IsString()
+  department?: string;
 }

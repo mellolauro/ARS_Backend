@@ -7,7 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './prisma.service';
 
 @Module({
-  imports: [
+    imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),

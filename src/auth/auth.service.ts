@@ -8,62 +8,31 @@ const EXPIRE_TIME = 20 * 1000;
 
 @Injectable()
 export class AuthService {
+    login(user: any) {
+    throw new Error('Method not implemented.');
+}
+    refreshToken(user: any) {
+    throw new Error('Method not implemented.');
+}
 constructor(
     private userService: UserService,
     private jwtService: JwtService,
 ) {}
 
-async login(dto: LoginDto) {
-    const user = await this.validateUser(dto);
-    const payload = {
-    username: user.email,
-    sub: {
-        name: user.name,
-    },
-    };
-
-    return {
-    user,
-    backendTokens: {
-        accessToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '20s',
-        secret: process.env.jwtSecretKey,
-        }),
-        refreshToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '7d',
-        secret: process.env.jwtRefreshTokenKey,
-        }),
-        expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
-    },
-    };
-}
-
-async validateUser(dto: LoginDto) {
-    const user = await this.userService.findByEmail(dto.username);
-
-    if (user && (await compare(dto.password, user.password))) {
-    const { password, ...result } = user;
-    return result;
+async validateUser(loginDto: LoginDto) {
+    console.log('Login attempt:', loginDto); 
+    const user = await this.userService.findByEmailForAuth(loginDto.email);
+    if (!user) {
+    console.log('User not found');
+    return null;
     }
-    throw new UnauthorizedException();
-}
+    
+    const isPasswordValid = await compare(loginDto.password, user.password);
+    console.log('Password valid:', isPasswordValid);
 
-async refreshToken(user: any) {
-    const payload = {
-    username: user.username,
-    sub: user.sub,
-    };
-
-    return {
-    accessToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '20s',
-        secret: process.env.jwtSecretKey,
-    }),
-    refreshToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '7d',
-        secret: process.env.jwtRefreshTokenKey,
-    }),
-    expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
-    };
+    if (isPasswordValid) {
+    return user;
+    }
+    return null; // Retorna null se a validação falhar
 }
 }

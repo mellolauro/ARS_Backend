@@ -1,10 +1,13 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
-import { RefreshJwtGuard } from './guards/refresh.guard';
+import { RefreshJwtGuard } from '../auth/guards/refresh.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('user')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -18,8 +21,12 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginDto) {
-    return await this.authService.login(dto);
+  async login(@Body() LoginDto: LoginDto) {
+    const user = await this.authService.validateUser(LoginDto);
+    if (!user) {
+      throw new UnauthorizedException('Credenciais Inválidas');
+    }
+    return await this.authService.login(user);
   }
 
   @UseGuards(RefreshJwtGuard)
@@ -29,4 +36,4 @@ export class AuthController {
 
     return await this.authService.refreshToken(req.user);
   }
-}
+}  
