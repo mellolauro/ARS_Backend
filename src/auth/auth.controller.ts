@@ -26,7 +26,7 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException('Credenciais Inválidas');
     }
-    return await this.authService.login(user);
+    return this.authService.login(user);
   }
 
   @UseGuards(RefreshJwtGuard)
