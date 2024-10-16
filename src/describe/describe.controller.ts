@@ -16,7 +16,7 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @ApiBearerAuth()
 @ApiTags('Descrição')
-@Controller('describe')
+@Controller('Descricao')
 export class DescribeController {
   constructor(private readonly describeService: DescribeService) {}
 

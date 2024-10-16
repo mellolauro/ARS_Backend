@@ -22,7 +22,7 @@ import { UserService } from './user.service';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @ApiBearerAuth()
-@ApiTags('Usuários')
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}

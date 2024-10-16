@@ -42,18 +42,20 @@ async create(dto: CreateUserDto): Promise<Omit<User, 'password'>> {
 }
 
   // Autenticar um usuário com email e senha
-async authenticate(email: string, password: string): Promise<Omit<User, 'password'>> {
+async authenticate(email: string, password: string): Promise<Omit<User, 'password'> | null> {
     const user = await this.prisma.user.findUnique({
     where: { email },
     });
 
     if (!user) {
-    throw new UnauthorizedException('Credenciais inválidas');
+    //throw new UnauthorizedException('Credenciais inválidas');
+    return null;
     }
 
     const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
-    throw new UnauthorizedException('Credenciais inválidas');
+      return null;
+    //throw new UnauthorizedException('Credenciais inválidas');
     }
 
     const { password: userPassword, ...result } = user;
