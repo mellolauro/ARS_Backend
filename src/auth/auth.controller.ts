@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/auth.dto';
@@ -12,22 +12,34 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class AuthController {
   constructor(
     private userService: UserService,
-    private authService: AuthService,
+    private readonly authService: AuthService,
   ) {}
 
-  @Post('register')
-  async registerUser(@Body() dto: CreateUserDto) {
-    return await this.userService.create(dto);
+@Post('register')
+async register(@Body() createUserDto: CreateUserDto) {
+  console.log('Dados recebidos:', createUserDto);
+  try {
+    const user = await this.authService.register(createUserDto);
+    return { message: 'Usuário registrado com sucesso', user };
+  } catch (error) {
+    throw new BadRequestException('Erro ao registrar o usuário');
   }
+}
+
 
   @Post('login')
-  async login(@Body() LoginDto: LoginDto) {
-    const user = await this.authService.validateUser(LoginDto);
-    if (!user) {
-      throw new UnauthorizedException('Credenciais Inválidas');
+    async login(@Body() loginDto: LoginDto) {
+    try {
+        const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+        if (!user) {
+            throw new UnauthorizedException('Credenciais inválidas');
+        }
+        return await this.authService.login(user);
+    } catch (error) {
+        console.error('Error during login:', error);
+        throw new UnauthorizedException('Erro no processo de login');
     }
-    return this.authService.login(user);
-  }
+}
 
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
