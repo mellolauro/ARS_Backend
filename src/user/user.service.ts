@@ -1,76 +1,53 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/database/PrismaService';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UpdateUserDto } from '../user/dto/update-user.dto';
-import { hash, compare } from 'bcrypt';
+import { hash } from 'bcrypt';
 import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  create(dto: CreateUserDto) {
-    throw new Error('Method not implemented.');
-  }
   constructor(private prisma: PrismaService) {}
 
-  // Método para encontrar o usuário por email para autenticação
-  async findByEmailForAuth(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
-  }
-
-  // Criar novo usuário
+  // Método para criar um usuário
   async createUser(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     const { name, email, department, password } = createUserDto;
 
-    // Verifica se o email já está em uso
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email },
-    });
-
+    // Verifica se o email já está registrado
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new ConflictException('Email já cadastrado');
     }
 
-    const hashedPassword = await hash(password, 10);  // Criptografa a senha
+    // Criptografa a senha
+    const hashedPassword = await hash(password, 10);
 
+    // Cria o usuário com perfil BASIC
     const newUser = await this.prisma.user.create({
       data: {
         name,
         email,
         department,
         password: hashedPassword,
-        perfil: 'basic',  // Define o perfil automaticamente como 'basic'
+        perfil: 'BASIC', // Perfil padrão
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
 
-    // Remover a senha do retorno para segurança
+    // Remove a senha do retorno
     const { password: _, ...result } = newUser;
     return result;
   }
 
-  // Autenticar um usuário com email e senha
-  async authenticate(email: string, password: string): Promise<Omit<User, 'password'> | null> {
-    const user = await this.prisma.user.findUnique({
+  // Método para encontrar um usuário por email (para autenticação)
+  async findByEmailForAuth(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
       where: { email },
     });
-
-    if (!user) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
-
-    const isPasswordValid = await compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
-
-    const { password: _, ...result } = user;
-    return result;
   }
 
-  // Buscar um usuário por email
+  // Buscar um usuário por email (excluindo a senha)
   async findByEmail(email: string): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -84,7 +61,7 @@ export class UserService {
     return result;
   }
 
-  // Buscar um usuário por ID
+  // Buscar um usuário por ID (excluindo a senha)
   async findById(id: number): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -98,7 +75,7 @@ export class UserService {
     return result;
   }
 
-  // Atualizar um usuário
+  // Atualizar dados do usuário
   async update(id: number, dto: UpdateUserDto): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -114,6 +91,7 @@ export class UserService {
         name: dto.name,
         email: dto.email,
         department: dto.department,
+        updatedAt: new Date(), // Atualiza a data de modificação
       },
     });
 
