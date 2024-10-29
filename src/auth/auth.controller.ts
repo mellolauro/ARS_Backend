@@ -24,16 +24,15 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    try {
-      // Alterado para usar o método correto
-      const user = await this.authService.authenticate(loginDto.email, loginDto.password);
-      return await this.authService.login(user);
-    } catch (error) {
-      console.error('Erro no login:', error);
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
+async login(@Body() loginDto: LoginDto) {
+  try {
+    const user = await this.authService.authenticate(loginDto.email, loginDto.password);
+    return await this.authService.login(user);
+  } catch (error) {
+    console.error('Erro no login:', error);
+    throw new UnauthorizedException('Credenciais inválidas');
   }
+}
 
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')

@@ -44,7 +44,7 @@ export class UserService {
   async findByEmailForAuth(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email },
-    });
+      });
   }
 
   // Buscar um usuário por email (excluindo a senha)

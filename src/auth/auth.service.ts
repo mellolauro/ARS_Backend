@@ -22,18 +22,21 @@ export class AuthService {
   }
 
   // Autenticar um usuário com email e senha
-  async authenticate(email: string, password: string): Promise<Omit<User, 'password'>> {
-    // Busca o usuário pelo email (exclui senha no retorno)
+  async authenticate(email: string, password: string): Promise<Omit<User, 'password'>| null> {
+    console.log(`Tentando autenticar o usuário:${email}`);
     const user = await this.userService.findByEmailForAuth(email);
 
     if (!user) {
+      console.log(`Usuário não encontrado para o email: ${email}`);
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
     // Verifica se a senha é válida
     const isPasswordValid = await compare(password, user.password);
+    console.log(`Resultado da validação de senha: ${isPasswordValid}`);
+
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciais inválidas');
+        throw new UnauthorizedException(`Credenciais inválidas`);
     }
 
     // Remove a senha do retorno e retorna os dados do usuário
