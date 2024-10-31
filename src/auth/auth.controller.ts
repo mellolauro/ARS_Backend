@@ -6,7 +6,7 @@ import { RefreshJwtGuard } from '../auth/guards/refresh.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiBearerAuth()
-@ApiTags('auth')  // Corrigido para 'auth', pois lida com autenticação
+@ApiTags('auth')  
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
